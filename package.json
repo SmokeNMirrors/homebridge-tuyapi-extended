@@ -1,0 +1,19 @@
+{
+  "_from": "homebridge-tuyapi-extended",
+  "_id": "homebridge-tuyapi-extended@1.0",
+  "_inBundle": false,
+  "_integrity": "sha512-1LVC8ZAsOIgFtX2CMiifr6Rzl7JLYZfvw1XaEJmvT8MiBAsqxmsxDWitePAUUkQHN1F1hqj+EXj1pUJYEqUaEw==",
+  "_location": "/homebridge-tuyapi-extended",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "homebridge-tuyapi-extended",
+    "name": "homebridge-tuyapi-extended",
+    "escapedName": "homebridge-tuyapi-extended",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "version": "1.0"
+}
