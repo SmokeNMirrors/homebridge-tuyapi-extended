@@ -1,19 +1,44 @@
 {
-  "_from": "homebridge-tuyapi-extended",
-  "_id": "homebridge-tuyapi-extended@1.0",
-  "_inBundle": false,
-  "_integrity": "sha512-1LVC8ZAsOIgFtX2CMiifr6Rzl7JLYZfvw1XaEJmvT8MiBAsqxmsxDWitePAUUkQHN1F1hqj+EXj1pUJYEqUaEw==",
-  "_location": "/homebridge-tuyapi-extended",
-  "_phantomChildren": {},
-  "_requested": {
-    "type": "tag",
-    "registry": true,
-    "raw": "homebridge-tuyapi-extended",
-    "name": "homebridge-tuyapi-extended",
-    "escapedName": "homebridge-tuyapi-extended",
-    "rawSpec": "",
-    "saveSpec": null,
-    "fetchSpec": "latest"
+  "name": "homebridge-tuyapi-extended",
+  "version": "1.0.0",
+  "description": "Tuya Smart Devices API for homebridge, extended from the original tuyapi by codetheweb",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
   },
-  "version": "1.0"
+  "scripts": {
+    "style": "xo --space --fix",
+    "document": "documentation build index.js -f md | (echo 'Docs \n=========' && cat) > docs/API.md",
+    "pushtags": "git push origin master --tags"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/drumfreak/homebridge-tuyapi-extended.git"
+  },
+  "keywords": [
+    "tuya",
+    "iot",
+    "plug",
+    "jinvoo",
+    "homebridge",
+    "powerstrip",
+    "outlet",
+    "smarthome"
+  ],
+  "author": "Eric Rosebrock <webfreakeric@gmail.com> (https://github.com/drumfreak)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/drumfreak/homebridge-tuyapi-extended/issues"
+  },
+  "homepage": "https://github.com/drumfreak/homebridge-tuyapi-extended#readme",
+  "dependencies": {
+    "debug": "^3.1.0",
+    "net-retry-connect": "^0.1.1",
+    "node-forge": "^0.7.1",
+    "string-occurrence": "^1.2.0"
+  },
+  "devDependencies": {
+    "documentation": "^5.3.3",
+    "xo": "^0.18.2"
+  }
 }
