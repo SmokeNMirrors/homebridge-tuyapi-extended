@@ -32,6 +32,10 @@
     "url": "https://github.com/drumfreak/homebridge-tuyapi-extended/issues"
   },
   "homepage": "https://github.com/drumfreak/homebridge-tuyapi-extended#readme",
+  "engines": {
+    "node": ">=0.12.0",
+    "homebridge": ">=0.2.0"
+  },
   "dependencies": {
     "debug": "^3.1.0",
     "net-retry-connect": "^0.1.1",
