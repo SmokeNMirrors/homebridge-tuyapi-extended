@@ -1,6 +1,6 @@
 {
   "name": "homebridge-tuyapi-extended",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Tuya Smart Devices API for homebridge, extended from the original tuyapi by codetheweb",
   "main": "index.js",
   "directories": {
@@ -21,6 +21,7 @@
     "plug",
     "jinvoo",
     "homebridge",
+    "homebridge-plugin",
     "powerstrip",
     "outlet",
     "smarthome"
@@ -35,7 +36,8 @@
     "debug": "^3.1.0",
     "net-retry-connect": "^0.1.1",
     "node-forge": "^0.7.1",
-    "string-occurrence": "^1.2.0"
+    "string-occurrence": "^1.2.0",
+    "dgram": "latest"
   },
   "devDependencies": {
     "documentation": "^5.3.3",
