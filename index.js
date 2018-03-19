@@ -1,7 +1,7 @@
 'use strict';
 
 // Import packages
-const debug = require('debug')('HomeBridge-TuyAPI-Extended');
+const debug = require('debug')('[Homebridge TuyAPI-Extended]  ');
 const dgram = require('dgram');
 const forge = require('node-forge');
 const retryConnect = require('net-retry-connect');
@@ -227,9 +227,7 @@ TuyaExtendedDevice.prototype.set = function (options) {
     thisRequest.t = (parseInt(now.getTime() / 1000, 10)).toString();
   }
 
-
-
-  //debug('~~~~~~~~~~~~~~~~~~~ TUYAPI DPS OPTIONS 22222 ~~~~~~~~~~~~~~~~~~~~');
+  //debug('~~~~~~~~~~~~~~~~~~~ TUYAPI-EXTENDED DPS OPTIONS ~~~~~~~~~~~~~~~~~~~~');
 
   //debug(options);
 
@@ -243,7 +241,7 @@ TuyaExtendedDevice.prototype.set = function (options) {
 
   // debug('Payload: ');
   // debug(thisRequest);
-  // debug('~~~~~~~~~~~~~~~~~~~ END TUYAPI DPS OPTIONS 2222 ~~~~~~~~~~~~~~~~~~~~');
+  // debug('~~~~~~~~~~~~~~~~~~~ END TUYAPI-EXTENDED DPS OPTIONS  ~~~~~~~~~~~~~~~~~~~~');
 
   // Encrypt data
   currentDevice.cipher.start({iv: ''});
@@ -280,7 +278,7 @@ TuyaExtendedDevice.prototype.set = function (options) {
 * @returns {Promise<string>} - returned data
 */
 TuyaExtendedDevice.prototype._send = function (ip, buffer) {
-  console.log('Sending this data: ', buffer.toString('hex'));
+  debug('Sending this data: ', buffer.toString('hex'));
 
   return new Promise((resolve, reject) => {
     retryConnect.to({port: 6668, host: ip, retryOptions: {retries: 5}}, (error, client) => {

@@ -1,6 +1,6 @@
 {
   "name": "homebridge-tuyapi-extended",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "Tuya Smart Devices API for homebridge, extended from the original tuyapi by codetheweb",
   "main": "index.js",
   "directories": {
