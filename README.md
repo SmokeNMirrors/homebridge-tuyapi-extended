@@ -1,15 +1,17 @@
-# TuyAPI 🌧 🔌 [![XO code style](https://img.shields.io/badge/code_style-XO-5ed9c7.svg)](https://github.com/sindresorhus/xo)
+# Homebridge TuyAPI Extended
 
-A library for communicating with devices that use the [Tuya](http://tuya.com) cloud network. These devices are branded under many different names, but if port 6668 is open on your device chances are this library will work with it.
+This code is a forked and modified version of [tuyapi](https://github.com/codetheweb/tuyapi) by [codetheweb](https://github.com/codetheweb). Proceed as you wish.
+
+Homebridge TuyaAPI Extended is a library for communicating with devices that use the [Tuya](http://tuya.com) cloud network. These devices are branded under many different names, but if port 6668 is open on your device chances are this library will work with it.
 Currently only supports smart plugs, but it should be fairly trivial to add other types of devices.
 
 ## Installation
 
-  `npm install codetheweb/tuyapi`
+  `npm install drumfreak/homebridge-tuyapi-extended`
 
 ## Basic Usage
 ```javascript
-const TuyaDevice = require('tuyapi');
+const TuyaDevice = require('homebridge-tuyapi-extended');
 
 let tuya = new TuyaDevice({
   id: 'xxxxxxxxxxxxxxxxxxxx',
@@ -53,6 +55,11 @@ See the [docs](docs/API.md).
 -   [blackrozes](https://github.com/blackrozes)
 -   [clach04](https://github.com/clach04)
 -   [jepsonrob](https://github.com/jepsonrob)
+
+
+## Original Project:
+
+-   [tuyapi](https://github.com/codetheweb/tuyapi)
 
 ## Related
 
