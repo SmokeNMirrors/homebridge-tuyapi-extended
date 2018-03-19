@@ -281,7 +281,7 @@ TuyaExtendedDevice.prototype._send = function (ip, buffer) {
   debug('Sending this data: ', buffer.toString('hex'));
 
   return new Promise((resolve, reject) => {
-    retryConnect.to({port: 6668, host: ip, retryOptions: {retries: 5}}, (error, client) => {
+    retryConnect.to({port: 6668, host: ip, retryOptions: {retries: 1}}, (error, client) => {
       if (error) {
         debug('Error connecting to Tuya device', error);
         return reject(error);
