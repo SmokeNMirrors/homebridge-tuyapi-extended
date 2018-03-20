@@ -7,7 +7,7 @@ Currently only supports smart plugs, but it should be fairly trivial to add othe
 
 ## Installation
 
-  `npm install drumfreak/homebridge-tuyapi-extended`
+  `npm install homebridge-tuyapi-extended`
 
 ## Basic Usage
 ```javascript
