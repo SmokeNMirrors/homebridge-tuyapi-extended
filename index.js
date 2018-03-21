@@ -227,10 +227,6 @@ TuyaExtendedDevice.prototype.set = function (options) {
     thisRequest.t = (parseInt(now.getTime() / 1000, 10)).toString();
   }
 
-  //debug('~~~~~~~~~~~~~~~~~~~ TUYAPI-EXTENDED DPS OPTIONS ~~~~~~~~~~~~~~~~~~~~');
-
-  //debug(options);
-
   if (options.dps === undefined) {
     thisRequest.dps = {1: options.set};
   } else {
@@ -239,6 +235,98 @@ TuyaExtendedDevice.prototype.set = function (options) {
     //debug(thisRequest.dps);
   }
 
+  //debug('~~~~~~~~~~~~~~~~~~~ TUYAPI-EXTENDED DPS OPTIONS ~~~~~~~~~~~~~~~~~~~~');
+  // debug(options);
+  // debug('Payload: ');
+  // debug(thisRequest);
+  // debug('~~~~~~~~~~~~~~~~~~~ END TUYAPI-EXTENDED DPS OPTIONS  ~~~~~~~~~~~~~~~~~~~~');
+
+  // Encrypt data
+  currentDevice.cipher.start({iv: ''});
+  currentDevice.cipher.update(forge.util.createBuffer(JSON.stringify(thisRequest), 'utf8'));
+  currentDevice.cipher.finish();
+
+  // Encode binary data to Base64
+  const data = forge.util.encode64(currentDevice.cipher.output.data);
+
+  // Create MD5 signature
+  const preMd5String = 'data=' + data + '||lpv=' + currentDevice.version + '||' + currentDevice.key;
+  const md5hash = forge.md.md5.create().update(preMd5String).digest().toHex();
+  const md5 = md5hash.toString().toLowerCase().substr(8, 16);
+
+  // Create byte buffer from hex data
+  const thisData = Buffer.from(currentDevice.version + md5 + data);
+  const buffer = this._constructBuffer(currentDevice.type, thisData, 'set');
+
+  // Send request to change status
+  return new Promise((resolve, reject) => {
+    this._send(currentDevice.ip, buffer).then(() => {
+      resolve(true);
+    }).catch(err => {
+      reject(err);
+    });
+  });
+};
+
+
+
+/**
+* Sets a property on a device using dps as an object instead of the previuos method.
+* @param {Object} options - options for setting properties
+* @param {String} [options.id] - ID of device
+* @param {Boolean} options.set - `true` for on, `false` for off
+* @param {Number} [options.dps] - dps index to change
+* @example
+* // set default property on default device
+* tuya.set({set: true}).then(() => console.log('device was changed'))
+* @example
+* // set custom property on non-default device
+* tuya.set({id: 'xxxxxxxxxxxxxxxxxxxx', 'dps': 2, set: true}).then(() => console.log('device was changed'))
+* @returns {Promise<Boolean>} - returns `true` if the command succeeded
+*/
+TuyaExtendedDevice.prototype.setDps = function (options) {
+  let currentDevice;
+
+  // If no ID is provided
+  if (options === undefined || options.id === undefined) {
+    currentDevice = this.devices[0]; // Use first device in array
+  } else { // Otherwise
+    // find the device by id in this.devices
+    const index = this.devices.findIndex(device => {
+      if (device.id === options.id) {
+        return true;
+      }
+      return false;
+    });
+    currentDevice = this.devices[index];
+  }
+
+  const thisRequest = requests[currentDevice.type].set.command;
+
+  // Add data to command
+  const now = new Date();
+  if ('gwId' in thisRequest) {
+    thisRequest.gwId = currentDevice.id;
+  }
+  if ('devId' in thisRequest) {
+    thisRequest.devId = currentDevice.id;
+  }
+  if ('uid' in thisRequest) {
+    thisRequest.uid = currentDevice.uid;
+  }
+  if ('t' in thisRequest) {
+    thisRequest.t = (parseInt(now.getTime() / 1000, 10)).toString();
+  }
+
+  if (options.dps === undefined) {
+    thisRequest.dps = {1: options.set};
+  } else {
+    thisRequest.dps = options.dps || {};
+    //debug(thisRequest.dps);
+  }
+
+  // debug('~~~~~~~~~~~~~~~~~~~ TUYAPI-EXTENDED DPS OPTIONS ~~~~~~~~~~~~~~~~~~~~');
+  // debug(options);
   // debug('Payload: ');
   // debug(thisRequest);
   // debug('~~~~~~~~~~~~~~~~~~~ END TUYAPI-EXTENDED DPS OPTIONS  ~~~~~~~~~~~~~~~~~~~~');
@@ -278,7 +366,7 @@ TuyaExtendedDevice.prototype.set = function (options) {
 * @returns {Promise<string>} - returned data
 */
 TuyaExtendedDevice.prototype._send = function (ip, buffer) {
-  debug('Sending this data: ', buffer.toString('hex'));
+  // debug('Sending this data: ', buffer.toString('hex'));
 
   return new Promise((resolve, reject) => {
     retryConnect.to({port: 6668, host: ip, retryOptions: {retries: 1}}, (error, client) => {
@@ -291,13 +379,11 @@ TuyaExtendedDevice.prototype._send = function (ip, buffer) {
 
       client.on('data', data => {
         client.destroy();
-
-        debug('Received data back.');
-
+        // debug('Received data back.');
         resolve(data);
       });
       client.on('error', error => {
-        error.message = 'Error communicating with device. Make sure nothing else is trying to control it or connected to it.';
+        error.message = 'Error communicating with Tuya device. Make sure nothing else like another app is trying to control it or connected to it.';
         reject(error);
       });
     });

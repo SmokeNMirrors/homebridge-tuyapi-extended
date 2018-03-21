@@ -1,6 +1,6 @@
 {
   "name": "homebridge-tuyapi-extended",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Tuya Smart Devices API for homebridge to include smart power strips such as Jinvoo, Tuya, and more. Extended from the original tuyapi by codetheweb",
   "main": "index.js",
   "directories": {
