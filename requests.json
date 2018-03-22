@@ -10,6 +10,30 @@
     },
     "prefix": "000055aa00000000000000",
     "suffix": "000000000000aa55"
+  },
+  "lightbulb": {
+    "status": {
+      "hexByte": "0a",
+      "command": {"gwId": "", "devId": ""}
+    },
+    "set": {
+      "hexByte": "07",
+      "command": {"devId": "", "uid": "", "t": ""}
+    },
+    "prefix": "000055aa00000000000000",
+    "suffix": "000000000000aa55"
+  },
+  "color-lightbulb": {
+    "status": {
+      "hexByte": "0a",
+      "command": {"gwId": "", "devId": ""}
+    },
+    "set": {
+      "hexByte": "07",
+      "command": {"devId": "", "uid": "", "t": ""}
+    },
+    "prefix": "000055aa00000000000000",
+    "suffix": "000000000000aa55"
   }
 }
 

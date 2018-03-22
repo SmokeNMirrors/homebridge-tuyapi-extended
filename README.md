@@ -11,13 +11,13 @@ Currently only supports smart plugs, but it should be fairly trivial to add othe
 
 ## Basic Usage
 ```javascript
-const TuyaDevice = require('homebridge-tuyapi-extended');
+const TuyaExtendedDevice = require('homebridge-tuyapi-extended');
 
-let tuya = new TuyaDevice({
+let tuya = new TuyaExtendedDevice({
   id: 'xxxxxxxxxxxxxxxxxxxx',
   key: 'xxxxxxxxxxxxxxxx'});
 
-tuya.resolveIds().then(() => {  
+tuya.resolveIds().then(() => {
   tuya.get().then(status => {
     console.log('Status: ' + status);
 
@@ -47,7 +47,6 @@ See the [docs](docs/API.md).
 
 1.  Add automated tests
 2.  Document details of protocol
-3.  Retry when ECONNRESET is thrown
 
 ## Contributors
 

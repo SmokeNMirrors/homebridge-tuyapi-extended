@@ -1,7 +1,6 @@
 'use strict';
 
 // Import packages
-const debug = require('debug')('[Homebridge TuyAPI-Extended]  ');
 const dgram = require('dgram');
 const forge = require('node-forge');
 const retryConnect = require('net-retry-connect');
@@ -28,13 +27,20 @@ const requests = require('./requests.json');
 * {id: 'xxxxxxxxxxxxxxxxxxxx', key: 'xxxxxxxxxxxxxxxx'},
 * {id: 'xxxxxxxxxxxxxxxxxxxx', key: 'xxxxxxxxxxxxxxxx'}])
 */
-function TuyaExtendedDevice(options) {
+function TuyaExtendedDevice(options, log) {
+  this.log = log;
   this.devices = [];
+  this.debug = false;
+  this.debugPrefix = '';
+
 
   if (options.constructor === Array) { // If argument is [{id: '', key: ''}]
     this.devices = options;
+    const debug = require('debug')('[TuyAPI-Extended - ' + options['name'] + ']  ');
+
   } else if (options.constructor === Object) { // If argument is {id: '', key: ''}
     this.devices = [options];
+    const debug = require('debug')('[TuyAPI-Extended - ' + options.name + ']  ');
   }
 
   // Standardize devices array
@@ -48,6 +54,9 @@ function TuyaExtendedDevice(options) {
     if (this.devices[i].type === undefined) {
       this.devices[i].type = 'outlet';
     }
+    if (this.devices[i].name === undefined) {
+      this.devices[i].name = '';
+    }
     if (this.devices[i].uid === undefined) {
       this.devices[i].uid = '';
     }
@@ -58,12 +67,37 @@ function TuyaExtendedDevice(options) {
       this.devices[i].version = 3.1;
     }
 
+    if (this.devices[i].apiMinTimeout === undefined) {
+      this.devices[i].apiMinTimeout = 100;
+    }
+
+    if (this.devices[i].apiMaxTimeout === undefined) {
+      this.devices[i].apiMaxTimeout = 1000;
+    }
+
+    if (this.devices[i].apiRetries === undefined) {
+      this.devices[i].apiRetries = 3;
+    }
+
+    if (this.devices[i].apiDebug === undefined) {
+      this.devices[i].apiDebug = false;
+    } else {
+      this.debug = this.devices[i].apiDebug;
+    }
+
+    if (this.devices[i].apiDebugPrefix === undefined) {
+      this.devices[i].apiDebugPrefix = '';
+    } else {
+      this.debugPrefix = this.devices[i].apiDebugPrefix;
+    }
+
     // Create cipher from key
     this.devices[i].cipher = forge.cipher.createCipher('AES-ECB', this.devices[i].key);
   }
 
-  //debug('Device(s): ');
-  //debug(this.devices);
+  // this.debugger('Device(s): ');
+  // this.debugger(this.devices);
+
 }
 
 /**
@@ -156,15 +190,15 @@ TuyaExtendedDevice.prototype.get = function (options) {
     requests[currentDevice.type].status.command.devId = currentDevice.id;
   }
 
-  //debug('Payload: ');
-  //debug(requests[currentDevice.type].status.command);
+  this.debugger('Payload: ');
+  this.debugger(requests[currentDevice.type].status.command);
 
   // Create byte buffer from hex data
   const thisData = Buffer.from(JSON.stringify(requests[currentDevice.type].status.command));
   const buffer = this._constructBuffer(currentDevice.type, thisData, 'status');
 
   return new Promise((resolve, reject) => {
-    this._send(currentDevice.ip, buffer).then(data => {
+    this._send(currentDevice.ip, buffer, currentDevice).then(data => {
       // Extract returned JSON
       data = this._extractJSON(data);
 
@@ -233,13 +267,8 @@ TuyaExtendedDevice.prototype.set = function (options) {
     thisRequest.dps = {};
     thisRequest.dps[options.dps] = options.set;
     //debug(thisRequest.dps);
+    this.debugger('DPS Values: ' + JSON.stringify(thisRequest.dps));
   }
-
-  //debug('~~~~~~~~~~~~~~~~~~~ TUYAPI-EXTENDED DPS OPTIONS ~~~~~~~~~~~~~~~~~~~~');
-  // debug(options);
-  // debug('Payload: ');
-  // debug(thisRequest);
-  // debug('~~~~~~~~~~~~~~~~~~~ END TUYAPI-EXTENDED DPS OPTIONS  ~~~~~~~~~~~~~~~~~~~~');
 
   // Encrypt data
   currentDevice.cipher.start({iv: ''});
@@ -260,7 +289,7 @@ TuyaExtendedDevice.prototype.set = function (options) {
 
   // Send request to change status
   return new Promise((resolve, reject) => {
-    this._send(currentDevice.ip, buffer).then(() => {
+    this._send(currentDevice.ip, buffer, currentDevice).then(() => {
       resolve(true);
     }).catch(err => {
       reject(err);
@@ -323,6 +352,7 @@ TuyaExtendedDevice.prototype.setDps = function (options) {
   } else {
     thisRequest.dps = options.dps || {};
     //debug(thisRequest.dps);
+   this.debugger('DPS Values: ' + JSON.stringify(thisRequest.dps));
   }
 
   // debug('~~~~~~~~~~~~~~~~~~~ TUYAPI-EXTENDED DPS OPTIONS ~~~~~~~~~~~~~~~~~~~~');
@@ -350,7 +380,7 @@ TuyaExtendedDevice.prototype.setDps = function (options) {
 
   // Send request to change status
   return new Promise((resolve, reject) => {
-    this._send(currentDevice.ip, buffer).then(() => {
+    this._send(currentDevice.ip, buffer, currentDevice).then(() => {
       resolve(true);
     }).catch(err => {
       reject(err);
@@ -365,13 +395,21 @@ TuyaExtendedDevice.prototype.setDps = function (options) {
 * @param {Buffer} buffer - buffer of data
 * @returns {Promise<string>} - returned data
 */
-TuyaExtendedDevice.prototype._send = function (ip, buffer) {
+TuyaExtendedDevice.prototype._send = function (ip, buffer, currentDevice) {
   // debug('Sending this data: ', buffer.toString('hex'));
+  if(currentDevice.apiDebug) {
+    this.debugger('Host: ' + ip);
+    this.debugger('Port: 6668');
+    this.debugger('Debug Log: ' + currentDevice.apiDebug);
+    this.debugger('apiMinTimeout: ' + currentDevice.apiMinTimeout);
+    this.debugger('apiMaxTimeout: ' + currentDevice.apiMaxTimeout);
+    this.debugger('apiRetries: ' + currentDevice.apiRetries);
+  }
 
   return new Promise((resolve, reject) => {
-    retryConnect.to({port: 6668, host: ip, retryOptions: {retries: 1}}, (error, client) => {
+    retryConnect.to({port: 6668, host: ip, retryOptions: {retries: currentDevice.apiRetries, minTimeout: currentDevice.apiMinTimeout, maxTimeout: currentDevice.apiMaxTimeout}}, (error, client) => {
       if (error) {
-        debug('Error connecting to Tuya device', error);
+        this.debugger('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Error connecting to Tuya device: ' + currentDevice.name);
         return reject(error);
       }
 
@@ -383,7 +421,7 @@ TuyaExtendedDevice.prototype._send = function (ip, buffer) {
         resolve(data);
       });
       client.on('error', error => {
-        error.message = 'Error communicating with Tuya device. Make sure nothing else like another app is trying to control it or connected to it.';
+        error.message = 'Error communicating with Tuya device. ' + currentDevice.name + ' Make sure nothing else like another app is trying to control it or connected to it.';
         reject(error);
       });
     });
@@ -434,6 +472,13 @@ TuyaExtendedDevice.prototype._extractJSON = function (data) {
   data = data.slice(data.indexOf('{'), currentIndex + 1);
   data = JSON.parse(data);
   return data;
+};
+
+
+TuyaExtendedDevice.prototype.debugger = function(args) {
+  if(this.debug === true) {
+    this.log.debug(this.debugPrefix, args);
+  }
 };
 
 module.exports = TuyaExtendedDevice;
