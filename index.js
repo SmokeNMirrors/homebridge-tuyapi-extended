@@ -213,6 +213,65 @@ TuyaExtendedDevice.prototype.get = function (options) {
   });
 };
 
+
+
+TuyaExtendedDevice.prototype.getCB = function (options, callback) {
+  let currentDevice;
+  var that = this;
+  // If no ID is provided
+  if (options === undefined || options.id === undefined) {
+    currentDevice = this.devices[0]; // Use first device in array
+  } else { // Otherwise
+    // find the device by id in this.devices
+    const index = this.devices.findIndex(device => {
+      if (device.id === options.id) {
+        return true;
+      }
+      return false;
+    });
+    currentDevice = this.devices[index];
+  }
+
+  // Add data to command
+  if ('gwId' in requests[currentDevice.type].status.command) {
+    requests[currentDevice.type].status.command.gwId = currentDevice.id;
+  }
+  if ('devId' in requests[currentDevice.type].status.command) {
+    requests[currentDevice.type].status.command.devId = currentDevice.id;
+  }
+
+  this.debugger('Payload: ');
+  this.debugger(requests[currentDevice.type].status.command);
+
+  // Create byte buffer from hex data
+  const thisData = Buffer.from(JSON.stringify(requests[currentDevice.type].status.command));
+  const buffer = this._constructBuffer(currentDevice.type, thisData, 'status');
+
+  // return new Promise((resolve, reject) => {
+  this._sendCB(currentDevice.ip, buffer, currentDevice, function(error, data) {
+
+    if(error) {
+      return callback(error, null);
+    }
+
+    if(data) {
+      // Extract returned JSON
+      // that.debugger(data);
+
+      data = that._extractJSON(data);
+
+      that.debugger(data);
+
+      if (options !== undefined && options.schema === true) {
+        return callback(null, data);
+      } else {
+        return callback(null, data.dps['1']);
+      }
+    }
+  });
+  // });
+};
+
 /**
 * Sets a property on a device.
 * @param {Object} options - options for setting properties
@@ -407,7 +466,7 @@ TuyaExtendedDevice.prototype._send = function (ip, buffer, currentDevice) {
   }
 
   return new Promise((resolve, reject) => {
-    retryConnect.to({port: 6668, host: ip, retryOptions: {retries: currentDevice.apiRetries, minTimeout: currentDevice.apiMinTimeout, maxTimeout: currentDevice.apiMaxTimeout}}, (error, client) => {
+    retryConnect.to({port: 6668, host: ip, retryOptions: {forever: false, maxRetryTime: currentDevice.apiMaxTimeout, retries: currentDevice.apiRetries, minTimeout: currentDevice.apiMinTimeout, maxTimeout: currentDevice.apiMaxTimeout}}, (error, client) => {
       if (error) {
         this.debugger('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Error connecting to Tuya device: ' + currentDevice.name);
         return reject(error);
@@ -418,14 +477,48 @@ TuyaExtendedDevice.prototype._send = function (ip, buffer, currentDevice) {
       client.on('data', data => {
         client.destroy();
         // debug('Received data back.');
-        resolve(data);
+        return resolve(data);
       });
       client.on('error', error => {
         error.message = 'Error communicating with Tuya device. ' + currentDevice.name + ' Make sure nothing else like another app is trying to control it or connected to it.';
-        reject(error);
+        return reject(error);
       });
     });
   });
+};
+
+
+TuyaExtendedDevice.prototype._sendCB = function (ip, buffer, currentDevice, callback) {
+  // debug('Sending this data: ', buffer.toString('hex'));
+  if(currentDevice.apiDebug) {
+    this.debugger('Host: ' + ip);
+    this.debugger('Port: 6668');
+    this.debugger('Debug Log: ' + currentDevice.apiDebug);
+    this.debugger('apiMinTimeout: ' + currentDevice.apiMinTimeout);
+    this.debugger('apiMaxTimeout: ' + currentDevice.apiMaxTimeout);
+    this.debugger('apiRetries: ' + currentDevice.apiRetries);
+  }
+
+  //return new Promise((resolve, reject) => {
+    retryConnect.to({port: 6668, host: ip, retryOptions: {forever: false, maxRetryTime: currentDevice.apiMaxTimeout, retries: currentDevice.apiRetries, minTimeout: currentDevice.apiMinTimeout, maxTimeout: currentDevice.apiMaxTimeout}}, (error, client) => {
+      if (error) {
+        this.debugger('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Error connecting to Tuya device: ' + currentDevice.name);
+        return callback(error, null);
+      }
+
+      client.write(buffer);
+
+      client.on('data', data => {
+        client.destroy();
+        this.debugger('Received data back.');
+        return callback(null, data);
+      });
+      client.on('error', error => {
+        error.message = 'Error communicating with Tuya device. ' + currentDevice.name + ' Make sure nothing else like another app is trying to control it or connected to it.';
+        return callback(error, null);
+      });
+    });
+  // });
 };
 
 /**
