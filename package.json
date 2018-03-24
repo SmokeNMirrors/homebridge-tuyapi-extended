@@ -1,6 +1,6 @@
 {
   "name": "homebridge-tuyapi-extended",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Tuya Smart Devices API for homebridge to include smart power strips such as Jinvoo, Tuya, and more. Extended from the original tuyapi by codetheweb",
   "main": "index.js",
   "directories": {
@@ -16,12 +16,14 @@
     "url": "git+https://github.com/drumfreak/homebridge-tuyapi-extended.git"
   },
   "keywords": [
+    "homebridge-plugin",
+    "homebridge",
     "tuya",
-    "iot",
+    "lightbulb",
+    "led",
+    "IoT",
     "plug",
     "jinvoo",
-    "homebridge",
-    "homebridge-plugin",
     "powerstrip",
     "outlet",
     "smarthome"
@@ -37,12 +39,10 @@
     "homebridge": ">=0.2.0"
   },
   "dependencies": {
-    "debug": "^3.1.0",
     "net-retry-connect": "^0.1.1",
     "node-forge": "^0.7.1",
     "string-occurrence": "^1.2.0",
-    "dgram": "latest",
-    "log" : "latest"
+    "dgram": "latest"
   },
   "devDependencies": {
     "documentation": "^5.3.3",

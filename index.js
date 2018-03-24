@@ -1,12 +1,11 @@
-'use strict';
+// 'use strict';
 
 // Import packages
-const debug = require('debug')('[Homebridge TuyAPI-Extended]  ');
 const dgram = require('dgram');
 const forge = require('node-forge');
 const retryConnect = require('net-retry-connect');
 const stringOccurrence = require('string-occurrence');
-const log = require('log');
+
 // Import requests for devices
 const requests = require('./requests.json');
 /**
@@ -27,22 +26,15 @@ const requests = require('./requests.json');
 * {id: 'xxxxxxxxxxxxxxxxxxxx', key: 'xxxxxxxxxxxxxxxx'},
 * {id: 'xxxxxxxxxxxxxxxxxxxx', key: 'xxxxxxxxxxxxxxxx'}])
 */
-function TuyaExtendedDevice(that, options) {
+function TuyaExtendedDevice(options) {
   this.devices = [];
   this.debugging = false;
   this.debugPrefix = '';
-  this.log = log;
 
   if (options.constructor === Array) { // If argument is [{id: '', key: ''}]
     this.devices = options;
-    this.log.prefix = 'TuyAPI-Extended - ' + options['name'];
-    const debug = require('debug')(this.log.prefix);
-
   } else if (options.constructor === Object) { // If argument is {id: '', key: ''}
     this.devices = [options];
-    this.log.prefix = 'TuyAPI-Extended - ' + options.name ;
-    const debug = require('debug')(this.log.prefix);
-
   }
 
   // Standardize devices array
