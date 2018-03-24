@@ -27,7 +27,7 @@
     "smarthome"
   ],
   "author": "Eric Rosebrock <webfreakeric@gmail.com> (https://github.com/drumfreak)",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/drumfreak/homebridge-tuyapi-extended/issues"
   },
@@ -41,7 +41,8 @@
     "net-retry-connect": "^0.1.1",
     "node-forge": "^0.7.1",
     "string-occurrence": "^1.2.0",
-    "dgram": "latest"
+    "dgram": "latest",
+    "log" : "latest"
   },
   "devDependencies": {
     "documentation": "^5.3.3",
